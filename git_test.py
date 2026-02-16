@@ -4,3 +4,6 @@ print(a)
 
 c = 'eloise test'
 print(c)
+
+d = 'alice test'
+print(d)
