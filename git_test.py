@@ -4,3 +4,4 @@ print(a)
 
 c = 'eloise test'
 print(c)
+print(a, c)
