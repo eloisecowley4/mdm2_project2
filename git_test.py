@@ -4,6 +4,8 @@ print(a)
 
 c = 'eloise test'
 print(c)
-print(a, c)
+
+d = 'alice test'
+print(d)
 
 #plot.save('') to save graphs 
