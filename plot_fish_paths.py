@@ -27,11 +27,11 @@ def plot_fish_turn_rate(experement:pd.DataFrame) -> None :
     plt.savefig('plots/turn rates.pdf')
 
 
-
 if __name__ == '__main__' :
     data = 'data/2/exp02H20141127_14h13.csv'
     experement = pd.read_csv(data)
-    a = experement.iloc[:1000,:]
+    #until aprox 30,000 fish 1 does not move
+    a = experement.iloc[30000:31000,:]
     plot_fish_paths(a)
     plt.clf()
     plot_fish_turn_rate(a)
