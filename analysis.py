@@ -1,10 +1,6 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 
-def calculate_turn_threshold(experement:pd.DataFrame):
-    
-
-
 
 
 if __name__ == '__main__' :
