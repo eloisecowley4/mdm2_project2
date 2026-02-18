@@ -20,7 +20,7 @@ def get_experement_paths(group_size:int|None = None,limit:int|None = None) -> li
 
         # path is valid
         valid_paths.append(
-            f'{_data_path}/{row['FishNb']}/{row['ExpID']}'
+            f'{_data_path}/{row['FishNb']}/{row['ExpID']}.csv'
             )
 
         # check limit
@@ -34,7 +34,7 @@ def metadata_from_path(path:str) -> pd.DataFrame :
     '''
     returns metadata about an experement given its path
     '''
-    _,group_size,experiment = path.split('/')
+    _,group_size, experiment = path.replace('.csv', '').split('/')
 
     # find row relating to this experiment
     for row in _metadata.iloc :
