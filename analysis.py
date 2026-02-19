@@ -57,6 +57,24 @@ def find_peaks_from_significant_events(significant_events:pd.DataFrame, turn_thr
     )
     all_peaks.columns = ['column_name', 'peak_index']
 
-    return all_peaks
+    all_peaks['row_idx'] = all_peaks.groupby('column_name').cumcount()
 
-    
+    reshaped_df = all_peaks.pivot(index='row_idx', columns='column_name', values='peak_index')
+
+    reshaped_df.index.name = None
+    reshaped_df.columns.name = None
+
+    return reshaped_df
+
+from data_access import get_experement_paths
+
+paths = get_experement_paths(group_size = 2)
+print(paths[6])
+path_csv = pd.read_csv(paths[6])
+
+significant_events = find_significant_events(path_csv)
+
+peaks = find_peaks_from_significant_events(significant_events)
+
+print(peaks["H1"].count())
+print(peaks["H2"].count())
