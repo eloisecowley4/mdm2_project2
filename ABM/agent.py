@@ -10,7 +10,7 @@ class FishAgent(ContinuousSpaceAgent):
         position=(0, 0),
         speed=1,
         direction=(1, 1),
-        vision=1,
+        vision=np.inf,
     ):
         super().__init__(space, model)
         self.position = position
@@ -21,6 +21,14 @@ class FishAgent(ContinuousSpaceAgent):
         self.angle = 0.0
     
     def step(self):
+
+        neighbours, _ = self.get_neighbors_in_radius(radius=self.vision)
+
+        for neighbour in neighbours:
+            if self.direction != neighbour.direction:
+                self.direction = ~self.direction
+                break
+
         center_x = self.model.scenario.width / 2
         center_y = self.model.scenario.height / 2
         

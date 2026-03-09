@@ -43,7 +43,14 @@ class FishTankModel(Model):
             n_agents=scenario.n_fish,)
 
         # Generate random starting positions and directions
-        positions = self.rng.random(size=(scenario.n_fish, 2)) * np.array([scenario.width, scenario.height])
+        initiation_angle = self.rng.random()*np.pi*2
+        initiation_radius = (self.scenario.inner_radius+self.scenario.outer_radius)/2
+
+        x_pos = np.cos(initiation_angle)*initiation_radius
+        y_pos = np.sin(initiation_angle)*initiation_radius
+
+        positions = (x_pos,y_pos)
+
         directions = self.rng.uniform(-1, 1, size=(scenario.n_fish, 2))
 
         # Create and place the Fish agents
