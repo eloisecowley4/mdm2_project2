@@ -6,40 +6,33 @@ class FishAgent(ContinuousSpaceAgent):
     def __init__(
         self,
         model,
-        space,
-        position=(0, 0),
+        space, 
+        pos,
+        direction=0,
         speed=1,
-        direction=(1, 1),
         vision=np.inf,
     ):
         super().__init__(space, model)
-        self.position = position
+        self.pos = np.array(pos)
         self.speed = speed
         self.direction = direction
         self.vision = vision
-        self.clockwise = True
-        self.angle = 0.0
     
     def step(self):
+        self.direction += self.model.rng.uniform(-0.1, 0.1)
 
-        neighbours, _ = self.get_neighbors_in_radius(radius=self.vision)
+        look_ahead_dist = self.speed * 3
 
-        for neighbour in neighbours:
-            if self.direction != neighbour.direction:
-                self.direction = ~self.direction
-                break
+        future_x = self.pos[0] + np.cos(self.direction) * look_ahead_dist
+        future_y = self.pos[1] + np.sin(self.direction) * look_ahead_dist
 
-        center_x = self.model.scenario.width / 2
-        center_y = self.model.scenario.height / 2
+        while not self.model.is_in_ring((future_x, future_y)):
+            self.direction += np.pi / 4 
+            future_x = self.pos[0] + np.cos(self.direction) * look_ahead_dist
+            future_y = self.pos[1] + np.sin(self.direction) * look_ahead_dist
+
+        new_x = self.pos[0] + np.cos(self.direction) * self.speed
+        new_y = self.pos[1] + np.sin(self.direction) * self.speed
         
-        x, y = self.position[0] - center_x, self.position[1] - center_y
-        magnitude = np.sqrt(x**2 + y**2)
+        self.pos = np.array((new_x, new_y))
         
-        if self.clockwise:
-            direction = (y/magnitude, -x/magnitude)
-        else:
-            direction = (-y/magnitude, x/magnitude)
-            
-        self.position += np.array(direction) * self.speed
-        
-        self.angle = np.degrees(np.arctan2(direction[1], direction[0]))

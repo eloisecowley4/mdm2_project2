@@ -34,7 +34,7 @@ model_params = {
         step=1,
     ),
 }
-model = FishTankModel(scenario=FishScenario())
+model = FishTankModel()
 
 renderer = (
     SpaceRenderer(
