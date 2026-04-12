@@ -6,33 +6,26 @@ class FishAgent(ContinuousSpaceAgent):
     def __init__(
         self,
         model,
-        space, 
-        pos,
-        direction=0,
-        speed=1,
-        vision=np.inf,
+        space:ContinuousSpace , 
+        position:np.typing.NDArray,
     ):
         super().__init__(space, model)
-        self.pos = np.array(pos)
-        self.speed = speed
-        self.direction = direction
-        self.vision = vision
-    
-    def step(self):
-        self.direction += self.model.rng.uniform(-0.1, 0.1)
 
-        look_ahead_dist = self.speed * 3
+        self.position = position
+        self.velocity = np.array([0,0],dtype=float)
 
-        future_x = self.pos[0] + np.cos(self.direction) * look_ahead_dist
-        future_y = self.pos[1] + np.sin(self.direction) * look_ahead_dist
+    def update(self) :
+        '''
+        figures out the how to change the movement
+        '''
+        self.velocity = np.array([1,1],dtype=float)
+        pass
 
-        while not self.model.is_in_ring((future_x, future_y)):
-            self.direction += np.pi / 4 
-            future_x = self.pos[0] + np.cos(self.direction) * look_ahead_dist
-            future_y = self.pos[1] + np.sin(self.direction) * look_ahead_dist
+    def step (self) :
+        '''update based on diffrences'''
 
-        new_x = self.pos[0] + np.cos(self.direction) * self.speed
-        new_y = self.pos[1] + np.sin(self.direction) * self.speed
-        
-        self.pos = np.array((new_x, new_y))
+        self.update()
+        # update position
+        self.position += self.velocity
+
         

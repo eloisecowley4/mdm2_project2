@@ -1,54 +1,86 @@
-from matplotlib.markers import MarkerStyle
 
-from mesa.visualization.components import AgentPortrayalStyle
-from mesa.visualization import Slider, SolaraViz, SpaceRenderer
-from dataclasses import dataclass
+
+import mesa.visualization as Mesa_Vis
+from mesa.visualization.space_renderer import SpaceRenderer
+from mesa.visualization.space_drawers import ContinuousSpaceDrawer
+from mesa.visualization.backends import MatplotlibBackend
+
 from model import FishScenario, FishTankModel
+from agent import FishAgent
 
-def fish_draw(agent):
-    fish_style = AgentPortrayalStyle(
-        color="red", size=20, marker=MarkerStyle(10)
-    )
-    return fish_style
+from matplotlib.pyplot import Axes
+import matplotlib.pyplot as plt
+import matplotlib.patches  as patch
+import time
 
-model_params = {
-    "seed": {
-        "type": "InputText",
-        "value": 42,
-        "label": "Random Seed",
-    },
-    "n_fish": Slider(
-        label="Number of Fish",
-        value=2,
-        min=1,
-        max=5,
-        step=1,
-    ),
-    "width": 100,
-    "height": 100,
-    "speed": Slider(
-        label="Speed of Fish",
-        value=5,
-        min=1,
-        max=20,
-        step=1,
-    ),
-}
-model = FishTankModel()
-
-renderer = (
-    SpaceRenderer(
-        model,
-        backend="matplotlib",
-    )
-    .setup_agents(fish_draw)
-    .render()
+Scenario = FishScenario(
+    # can make changes here to starting params
 )
 
-page = SolaraViz(
+# RENDERING
+
+def fish_draw(ax:Axes,agent:FishAgent):
+    x,y = agent.pos
+    ax.scatter(x,y,c='red')
+
+def set_axies(ax:Axes) :
+    ax.set_xlabel('X position (mm)')
+    ax.set_ylabel(f'Y position (mm)')
+
+def plot_boundrys(ax:Axes) :
+    outer = patch.Circle((0,0),Scenario.outer_radius,fill=None,edgecolor='black')
+    inner = patch.Circle((0,0),Scenario.inner_radius,fill=None,edgecolor='black')
+    ax.add_patch(outer)
+    ax.add_patch(inner)
+
+def render(ax,model:FishTankModel) :
+
+    set_axies(ax)
+    plot_boundrys(ax)
+    for agent in model.agents :
+        fish_draw(ax,agent)
+
+def init_renderer(model) -> SpaceRenderer :
+    renderer = SpaceRenderer(model)
+    space = getattr(model, "grid", getattr(model, "space", None))
+    renderer.backend_renderer = MatplotlibBackend(ContinuousSpaceDrawerFish(space))
+    renderer.backend_renderer.initialize_canvas()
+    renderer.render()
+    return renderer
+
+class ContinuousSpaceDrawerFish(ContinuousSpaceDrawer) :
+
+    def draw_matplotlib(self, ax=None, **draw_space_kwargs):
+        if ax is None:
+            _, ax = plt.subplots()
+
+        border_style = "solid" if not self.space.torus else (0, (5, 10))
+        spine_kwargs = {"linewidth": 1.5, "color": "black", "linestyle": border_style}
+        spine_kwargs.update(draw_space_kwargs)
+
+        for spine in ax.spines.values():
+            spine.set(**spine_kwargs)
+
+        ax.set_xlim(self.viz_xmin, self.viz_xmax)
+        ax.set_ylim(self.viz_ymin, self.viz_ymax)
+        render(ax,model)
+
+        return ax
+
+
+# model setup
+
+model = FishTankModel(Scenario)
+
+model_params = {
+    "scenario":Scenario,
+}
+
+renderer = init_renderer(model)
+
+page = Mesa_Vis.SolaraViz(
     model,
     renderer,
     model_params=model_params,
     name="Fish Turning Model",
 )
-page
