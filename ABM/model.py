@@ -2,13 +2,14 @@
 import numpy as np
 from mesa import Model
 from mesa.experimental.continuous_space import ContinuousSpace
-from agent import FishAgent
+from agent import FishAgent, AgentSettings
 from dataclasses import dataclass
 
 @dataclass
 class FishScenario:
     n_fish: int = 2
     speed: float = 1.0
+    seed: int = 42
 
     #I think this is wrong/ should be moved into the fish tank model
     #Job for later, only do when/if change away from ring boundary
@@ -17,51 +18,56 @@ class FishScenario:
     inner_radius: float = 20.0
     outer_radius: float = 45.0
 
+
 class FishTankModel(Model):    
-    def __init__(self, n_fish=2, speed=1.0, width=100, height=100, seed=None):
+    def __init__(self,scenario:FishScenario,**kwargs):
         '''
         Initialise the space for the ring model
+
         '''
-        super().__init__(seed=seed)
 
-        self.scenario = FishScenario(
-            n_fish=n_fish, 
-            speed=speed, 
-            width=width, 
-            height=height
-        )
+        # load senario settings
+        self.scenario = scenario
 
+        super().__init__(seed=self.scenario.seed)
+
+        # make the space the fish are in
         self.space = ContinuousSpace(
-            [[0, self.scenario.width], [0, self.scenario.height]], 
+            [
+            [-self.scenario.width/2,self.scenario.width/2], # x axis
+            [-self.scenario.height/2,self.scenario.height/2] # y axis
+            ], 
             torus=False,
             random=self.rng
-    )
+            )
 
-        self.centre = (self.scenario.width/2, self.scenario.height/2)
+        #set center to be 0.0
+        self.centre = (0.0,0.0)
 
+        # add agents
         self._setup_agents()
     
     def _setup_agents(self):
         '''
-        Vectorized initialization of agents: calculates all starting pos 
-        and directions at once before instantiating the agents.
+        Initializes positions of agents 
         '''
         n = self.scenario.n_fish
-        initiation_radius = (self.scenario.inner_radius + self.scenario.outer_radius) / 2
 
-        initiation_angles = self.rng.random(n) * np.pi * 2
-        directions = self.rng.random(n) * np.pi * 2
+        positions = []
 
-        x_pos = np.cos(initiation_angles) * initiation_radius + self.centre[0]
-        y_pos = np.sin(initiation_angles) * initiation_radius + self.centre[1]
+        for _ in range(n) :
+            angle = self.rng.random()*np.pi*2 # random angle
+            radius = self.scenario.inner_radius + self.rng.random()*(self.scenario.outer_radius - self.scenario.inner_radius)
+            pos = np.array([radius*np.cos(angle),radius*np.sin(angle)])
+            positions.append(pos)
+            
 
         FishAgent.create_agents(
                 model=self, 
                 n=self.scenario.n_fish,
                 space=self.space,
-                pos=(x_pos, y_pos),
-                direction=directions,
-                speed=self.scenario.speed
+                position=positions,
+                settings=AgentSettings(),
             )
 
     def is_in_ring(self, pos):
