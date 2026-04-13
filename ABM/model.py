@@ -2,7 +2,7 @@
 import numpy as np
 from mesa import Model
 from mesa.experimental.continuous_space import ContinuousSpace
-from agent import FishAgent
+from agent import FishAgent, AgentSettings
 from dataclasses import dataclass
 
 @dataclass
@@ -17,6 +17,7 @@ class FishScenario:
     height: int = 100
     inner_radius: float = 20.0
     outer_radius: float = 45.0
+
 
 class FishTankModel(Model):    
     def __init__(self,scenario:FishScenario,**kwargs):
@@ -66,6 +67,7 @@ class FishTankModel(Model):
                 n=self.scenario.n_fish,
                 space=self.space,
                 position=positions,
+                settings=AgentSettings(),
             )
 
     def is_in_ring(self, pos):

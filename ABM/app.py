@@ -7,11 +7,9 @@ from mesa.visualization.backends import MatplotlibBackend
 
 from model import FishScenario, FishTankModel
 from agent import FishAgent
-
 from matplotlib.pyplot import Axes
 import matplotlib.pyplot as plt
 import matplotlib.patches  as patch
-import time
 
 Scenario = FishScenario(
     # can make changes here to starting params
@@ -63,6 +61,7 @@ class ContinuousSpaceDrawerFish(ContinuousSpaceDrawer) :
 
         ax.set_xlim(self.viz_xmin, self.viz_xmax)
         ax.set_ylim(self.viz_ymin, self.viz_ymax)
+        ax.set_aspect('equal')
         render(ax,model)
 
         return ax
