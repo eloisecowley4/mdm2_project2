@@ -7,7 +7,7 @@ from dataclasses import dataclass
 
 @dataclass
 class FishScenario:
-    n_fish: int = 2
+    n_fish: int = 5
     speed: float = 1.0
     seed: int = 42
 

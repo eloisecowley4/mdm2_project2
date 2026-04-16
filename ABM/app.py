@@ -18,8 +18,9 @@ Scenario = FishScenario(
 # RENDERING
 
 def fish_draw(ax:Axes,agent:FishAgent):
-    x,y = agent.pos
-    ax.scatter(x,y,c='red')
+    arrow = patch.Arrow(*(agent.position-agent.velocity),*agent.velocity)
+    ax.add_patch(arrow)
+    ax.scatter(agent.pos[0],agent.pos[1],c='red')
 
 def set_axies(ax:Axes) :
     ax.set_xlabel('X position (mm)')
@@ -38,13 +39,13 @@ def render(ax,model:FishTankModel) :
     for agent in model.agents :
         fish_draw(ax,agent)
 
-def init_renderer(model) -> SpaceRenderer :
-    renderer = SpaceRenderer(model)
-    space = getattr(model, "grid", getattr(model, "space", None))
-    renderer.backend_renderer = MatplotlibBackend(ContinuousSpaceDrawerFish(space))
-    renderer.backend_renderer.initialize_canvas()
-    renderer.render()
-    return renderer
+class SpaceRendererFish(SpaceRenderer) :
+
+    def __init__(self,model,backend='matplotlib') :
+        super().__init__(model,backend)
+        self.backend_renderer = MatplotlibBackend(ContinuousSpaceDrawerFish(self.space))
+        self.backend_renderer.initialize_canvas()
+        
 
 class ContinuousSpaceDrawerFish(ContinuousSpaceDrawer) :
 
@@ -75,7 +76,7 @@ model_params = {
     "scenario":Scenario,
 }
 
-renderer = init_renderer(model)
+renderer = SpaceRendererFish(model).render()
 
 page = Mesa_Vis.SolaraViz(
     model,
