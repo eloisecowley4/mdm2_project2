@@ -11,8 +11,9 @@ class AgentSettings() :
     seperation_weight : float = 1.0 # NEEDS CHANGING
     seperation_range : float = 15.0 # based on analisis
 
-    coherence_weight : float = 0.5  # NEEDS CHANGING
-    coherence_range : float = 40.0 # NEEDS CHANGING
+    # DONE THE VALUES I GOT FOR 5 FISH - is that correct?
+    coherence_weight : float = 3.81  # NEEDS CHANGING 
+    coherence_range : float = 143.2 # NEEDS CHANGING
 
     alignment_weight : float = .5 # NEEDS CHANGING
     alignment_range : float = coherence_range # might need changing
