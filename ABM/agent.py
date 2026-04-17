@@ -31,11 +31,12 @@ class FishAgent(ContinuousSpaceAgent):
         space:ContinuousSpace , 
         position:np.typing.NDArray,
         settings:AgentSettings,
+        velocity:np.typing.NDArray=np.array([1,1],dtype=float),
     ):
         super().__init__(space, model)
 
         self.position = position
-        self.velocity = np.array([0,0],dtype=float)
+        self.velocity = velocity
         self.model = model
         self.settings = settings
 
@@ -79,7 +80,32 @@ class FishAgent(ContinuousSpaceAgent):
         pass
 
     def bounds(self) :
-        pass
+
+        def vec_2_wall_closest(self:FishAgent) :
+            
+            agent_r = np.sqrt(self.pos[0]**2 + self.pos[1]**2)
+
+            # get radi
+            inner_radius = self.model.scenario.inner_radius
+            outer_radius = self.model.scenario.outer_radius
+
+            # check outer wall
+            dist_to_inner = inner_radius - agent_r
+            dist_to_outer = outer_radius - agent_r
+
+            if dist_to_inner < dist_to_outer :
+                return self.pos * -(dist_to_inner/agent_r)
+            else :
+                return self.pos * (dist_to_outer/agent_r)
+
+        # check if wall is within view distance 
+        to_wall = vec_2_wall_closest(self)
+        dist_to_wall = np.sqrt(to_wall[0]**2 + to_wall[1]**2)
+
+        if dist_to_wall < self.settings.bounds_range :
+            
+            self.velocity += to_wall * self.settings.bounds_weigth
+
 
     def speed(self) : 
         speed = np.sqrt(self.velocity[0]**2 + self.velocity[1]**2)
