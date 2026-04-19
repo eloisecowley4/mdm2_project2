@@ -10,6 +10,7 @@ from agent import FishAgent
 from matplotlib.pyplot import Axes
 import matplotlib.pyplot as plt
 import matplotlib.patches  as patch
+import math
 
 Scenario = FishScenario(
     # can make changes here to starting params
@@ -18,9 +19,19 @@ Scenario = FishScenario(
 # RENDERING
 
 def fish_draw(ax:Axes,agent:FishAgent):
-    arrow = patch.Arrow(*(agent.position-agent.velocity),*agent.velocity)
+    x,y = agent.pos
+    ax.scatter(x,y,c='red')
+    agent_bounds_arows(ax,agent)
+
+
+def agent_bounds_arows(ax:Axes,agent:FishAgent) : 
+    x,y = agent.pos
+    colision = agent.boundry_ray_cast(agent.velocity,ax)
+    dx,dy = colision - agent.pos
+    arrow = patch.Arrow(x,y,dx,dy)
+    direction = patch.Arrow(x,y,*agent.velocity,color='orange')
     ax.add_patch(arrow)
-    ax.scatter(agent.pos[0],agent.pos[1],c='red')
+    ax.add_patch(direction)
 
 def set_axies(ax:Axes) :
     ax.set_xlabel('X position (mm)')
