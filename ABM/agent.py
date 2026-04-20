@@ -32,6 +32,7 @@ class FishAgent(ContinuousSpaceAgent):
         position:np.typing.NDArray,
         settings:AgentSettings,
         velocity:np.typing.NDArray=np.array([1,1],dtype=float),
+        
     ):
         super().__init__(space, model)
 
@@ -39,6 +40,7 @@ class FishAgent(ContinuousSpaceAgent):
         self.velocity = velocity
         self.model = model
         self.settings = settings
+        self.heading = np.arctan2(self.velocity[1], self.velocity[0])
 
     def seperation(self) :
         neigbours, dist = self.get_neighbors_in_radius(self.settings.seperation_range)
@@ -116,6 +118,15 @@ class FishAgent(ContinuousSpaceAgent):
         self.velocity *= speed
         pass
 
+    def update_heading(self):
+        target_angle = np.arctan2(self.velocity[1], self.velocity[0])
+
+        delta = target_angle - self.heading
+
+        delta = (delta + np.pi) % (2 * np.pi) - np.pi
+
+        self.heading += delta
+
     def update(self) :
         '''
         figures out the how to change the movement
@@ -143,5 +154,7 @@ class FishAgent(ContinuousSpaceAgent):
         self.update()
         # update position
         self.position += self.velocity * self.dt
+
+        self.update_heading()
 
         
