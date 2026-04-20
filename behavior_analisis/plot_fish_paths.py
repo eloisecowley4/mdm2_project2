@@ -64,11 +64,11 @@ def save_animation(anim:animation.Animation,fps:int=50) -> None :
     def callback(current,total) -> None :
         print(f'{current}/{total}',end='\r')
 
-    anim.save('mymovie.gif',progress_callback=callback,fps=fps)
+    anim.save('mymovie5fish.gif',progress_callback=callback,fps=fps)
 
 
 if __name__ == '__main__' :
-    data = 'data/2/exp02H20141127_14h13.csv'
+    data = 'data/5/exp05H20141001_10h05.csv'
     experement = pd.read_csv(data)
     #until aprox 30,000 fish 1 does not move
     a = experement.iloc[60000:60100,:]
