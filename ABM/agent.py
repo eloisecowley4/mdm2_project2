@@ -8,19 +8,21 @@ from dataclasses import dataclass
 class AgentSettings() :
 
     # agent settings
-    seperation_weight : float = 1.0 # NEEDS CHANGING
-    seperation_range : float = 3.0 # based on analisis
+    seperation_weight : float = 2.0 
+    seperation_range : float = 10.0 
 
     # DONE THE VALUES I GOT FOR 5 FISH - is that correct?
-    cohesion_weight : float = 3.81  
-    cohesion_range : float = 143.2 
+    cohesion_weight : float = 1.0 
+    cohesion_range : float = 20
 
-    alignment_weight : float = .5 # NEEDS CHANGING
-    alignment_range : float = 10 # might need changing
+    alignment_weight : float = .5
+    alignment_range : float = 10 
 
-    bounds_weigth : float = 2.0 # needs changing
-    bounds_vision_angle : float = (2*np.pi/360) * 10
-    bounds_range : float = 2.0 # needs changing
+    bounds_weigth : float = 2.0 
+    bounds_vision_angle : float = (2*np.pi/360) * 10 # 10 degeese each way
+    bounds_range : float = 20 
+
+    randomness_weight : float = 0.05
 
     speed_min : float = 3
     speed_max : float = 10
@@ -32,7 +34,7 @@ class FishAgent(ContinuousSpaceAgent):
         space:ContinuousSpace , 
         position:np.typing.NDArray,
         settings:AgentSettings,
-        velocity:np.typing.NDArray=np.array([1,1],dtype=float),
+        velocity:np.typing.NDArray,
     ):
         super().__init__(space, model)
 
@@ -48,9 +50,9 @@ class FishAgent(ContinuousSpaceAgent):
 
         move = np.array([0.0,0.0])
         for i, other in enumerate(neigbours) :
-            move += self.position - other.position
+            move += (self.position - other.position)/(dist[i]**2)
 
-        self.velocity += move * self.settings.seperation_weight * self.dt
+        self.velocity += move * self.settings.seperation_weight
 
     def cohesion(self) :
         neigbours, dist = self.get_neighbors_in_radius(self.settings.cohesion_range)
@@ -211,6 +213,12 @@ class FishAgent(ContinuousSpaceAgent):
 
         self.velocity += avoidance_force * self.settings.bounds_weigth
 
+    def randomness(self) :
+        # adds a bit of randomness to the velocity
+        angle = self.random.random()*2*np.pi
+        change = np.array([np.cos(angle),np.sin(angle)],dtype=float)
+        self.velocity += change*self.settings.randomness_weight
+
     def speed(self) : 
         speed = np.sqrt(self.velocity[0]**2 + self.velocity[1]**2)
         self.velocity /= speed
@@ -231,10 +239,13 @@ class FishAgent(ContinuousSpaceAgent):
         self.cohesion()
 
         # step 3 : alignment 
-        #self.alignment()
+        self.alignment()
         
         # step 4 boundry avodiance 
         self.bounds()
+
+        # step 5 randomness
+        self.randomness()
 
         # cap speed
         self.speed()
