@@ -7,7 +7,7 @@ from dataclasses import dataclass
 
 @dataclass
 class FishScenario:
-    n_fish: int = 2
+    n_fish: int = 5
     speed: float = 1.0
     seed: int = 42
 
@@ -53,13 +53,21 @@ class FishTankModel(Model):
         '''
         n = self.scenario.n_fish
 
+        settings = AgentSettings()
+
         positions = []
+        velocities = []
 
         for _ in range(n) :
             angle = self.rng.random()*np.pi*2 # random angle
             radius = self.scenario.inner_radius + self.rng.random()*(self.scenario.outer_radius - self.scenario.inner_radius)
             pos = np.array([radius*np.cos(angle),radius*np.sin(angle)])
             positions.append(pos)
+
+            angle = self.rng.random()*np.pi*2
+            magnitude = settings.speed_min + self.rng.random()*(settings.speed_max-settings.speed_min)
+            velocity = np.array([np.cos(angle),np.sin(angle)])*magnitude
+            velocities.append(velocity)
             
 
         FishAgent.create_agents(
@@ -67,7 +75,8 @@ class FishTankModel(Model):
                 n=self.scenario.n_fish,
                 space=self.space,
                 position=positions,
-                settings=AgentSettings(),
+                velocity=velocities,
+                settings=settings,
             )
 
     def is_in_ring(self, pos):
