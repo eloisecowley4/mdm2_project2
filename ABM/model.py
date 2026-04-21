@@ -4,9 +4,13 @@ from mesa import Model
 from mesa.experimental.continuous_space import ContinuousSpace
 from agent import FishAgent, AgentSettings
 from dataclasses import dataclass
+from mesa import DataCollector
 
 @dataclass
 class FishScenario:
+
+    agent_settngs: AgentSettings 
+
     n_fish: int = 5
     speed: float = 1.0
     seed: int = 42
@@ -46,6 +50,18 @@ class FishTankModel(Model):
 
         # add agents
         self._setup_agents()
+
+        self.datacollector = DataCollector(
+            model_reporters={
+                    "Population": lambda m : 4
+                },
+            agent_reporters={
+                "X": lambda a : a.position[0],
+                "Y": lambda a : a.position[1],
+                "H": "heading",
+            }
+        )
+
     
     def _setup_agents(self):
         '''
@@ -53,7 +69,7 @@ class FishTankModel(Model):
         '''
         n = self.scenario.n_fish
 
-        settings = AgentSettings()
+        settings = self.scenario.agent_settngs
 
         positions = []
         velocities = []
@@ -92,4 +108,6 @@ class FishTankModel(Model):
         return self.scenario.inner_radius <= dist <= self.scenario.outer_radius
 
     def step(self):
+        self.datacollector.collect(self)
         self.agents.shuffle_do("step")
+        

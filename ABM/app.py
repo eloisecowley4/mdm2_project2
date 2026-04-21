@@ -6,7 +6,7 @@ from mesa.visualization.space_drawers import ContinuousSpaceDrawer
 from mesa.visualization.backends import MatplotlibBackend
 
 from model import FishScenario, FishTankModel
-from agent import FishAgent
+from agent import FishAgent,AgentSettings
 from matplotlib.pyplot import Axes
 import matplotlib.pyplot as plt
 import matplotlib.patches  as patch
@@ -15,6 +15,7 @@ import matplotlib.patches  as patch
 
 Scenario = FishScenario(
     # can make changes here to starting params
+    agent_settngs=AgentSettings()
 )
 
 # RENDERING
@@ -24,8 +25,8 @@ def fish_draw(ax:Axes,agent:FishAgent,color):
     dx,dy = agent.velocity
     fish = patch.Arrow(x-dx,y-dy,dx,dy,width=2,color=color)
     ax.add_patch(fish)
+    agent_bounds_arows(ax,agent)
     
-
 
 def agent_bounds_arows(ax:Axes,agent:FishAgent) : 
     x,y = agent.pos
@@ -38,8 +39,8 @@ def agent_bounds_arows(ax:Axes,agent:FishAgent) :
         pass
 
 def set_axies(ax:Axes) :
-    ax.set_xlabel('X position (mm)')
-    ax.set_ylabel(f'Y position (mm)')
+    ax.set_xlabel('X position (cm)')
+    ax.set_ylabel(f'Y position (cm)')
 
 def plot_boundrys(ax:Axes) :
     outer = patch.Circle((0,0),Scenario.outer_radius,fill=None,edgecolor='black')
@@ -50,7 +51,7 @@ def plot_boundrys(ax:Axes) :
 def render(ax,model:FishTankModel) :
 
 
-    colours = ['blue','orange','green','red','yellow','pink','purple']
+    colours = ['blue','orange','green','red','pink','purple']
     set_axies(ax)
     plot_boundrys(ax)
     for i,agent in enumerate(model.agents) :

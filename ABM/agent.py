@@ -8,24 +8,26 @@ from dataclasses import dataclass
 class AgentSettings() :
 
     # agent settings
-    seperation_weight : float = 2.0 
-    seperation_range : float = 10.0 
+    seperation_weight : float = 2
+    seperation_range : float = 20
 
     # DONE THE VALUES I GOT FOR 5 FISH - is that correct?
-    cohesion_weight : float = 1.0 
+    cohesion_weight : float = 2
     cohesion_range : float = 20
 
-    alignment_weight : float = .5
-    alignment_range : float = 10 
+    alignment_weight : float = 2
+    alignment_range : float = 20
 
-    bounds_weigth : float = 2.0 
+    bounds_weigth : float = 2.0
     bounds_vision_angle : float = (2*np.pi/360) * 10 # 10 degeese each way
     bounds_range : float = 20 
 
-    randomness_weight : float = 0.05
+    randomness_weight : float = 0.5
 
     speed_min : float = 3
     speed_max : float = 10
+
+    turn_proability: float = 0.001
 
 class FishAgent(ContinuousSpaceAgent):
     def __init__(
@@ -220,6 +222,10 @@ class FishAgent(ContinuousSpaceAgent):
         change = np.array([np.cos(angle),np.sin(angle)],dtype=float)
         self.velocity += change*self.settings.randomness_weight
 
+    def random_turning(self):
+        if self.random.random() < self.settings.turn_proability:
+            self.velocity = -self.velocity
+
     def speed(self) : 
         speed = np.sqrt(self.velocity[0]**2 + self.velocity[1]**2)
         self.velocity /= speed
@@ -266,6 +272,8 @@ class FishAgent(ContinuousSpaceAgent):
         # step 5 randomness
         self.randomness()
 
+        self.random_turning()
+
         # cap speed
         self.speed()
 
@@ -278,4 +286,5 @@ class FishAgent(ContinuousSpaceAgent):
         self.position += self.velocity * self.dt
 
         self.update_heading()
+
 
