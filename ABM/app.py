@@ -26,7 +26,6 @@ def fish_draw(ax:Axes,agent:FishAgent,color):
     ax.add_patch(fish)
     
 
-
 def agent_bounds_arows(ax:Axes,agent:FishAgent) : 
     x,y = agent.pos
     try :
@@ -38,8 +37,8 @@ def agent_bounds_arows(ax:Axes,agent:FishAgent) :
         pass
 
 def set_axies(ax:Axes) :
-    ax.set_xlabel('X position (mm)')
-    ax.set_ylabel(f'Y position (mm)')
+    ax.set_xlabel('X position (cm)')
+    ax.set_ylabel(f'Y position (cm)')
 
 def plot_boundrys(ax:Axes) :
     outer = patch.Circle((0,0),Scenario.outer_radius,fill=None,edgecolor='black')
